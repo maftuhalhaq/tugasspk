@@ -1,49 +1,88 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Interaction; // Model baru (buat nanti)
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    // 1. DASHBOARD & LAPORAN (Sesuai DFD Output: Laporan Statistik)
+    // 1. DASHBOARD UTAMA
     public function dashboard()
     {
-        // Hitung statistik sederhana
-        $totalUsers = User::where('role', 'user')->count();
-        $totalPria = User::where('gender', 'L')->count();
-        $totalWanita = User::where('gender', 'P')->count();
+        // Statistik Card
+        $stats = [
+            'total_users' => User::where('role', 'user')->count(),
+            'pending_users' => User::where('role', 'user')->where('status', 'pending')->count(),
+            'approved_users' => User::where('role', 'user')->where('status', 'approved')->count(),
+            'total_matches' => DB::table('interactions')->count(), // Data dari tombol "Ajak Kenalan"
+        ];
 
-        return view('admin.dashboard', compact('totalUsers', 'totalPria', 'totalWanita'));
+        // Data Chart (Sebaran Domisili)
+        $domisiliData = User::where('role', 'user')
+            ->select('domisili', DB::raw('count(*) as total'))
+            ->groupBy('domisili')
+            ->get();
+
+        // Data Terbaru (Pending)
+        $newUsers = User::where('role', 'user')->where('status', 'pending')->latest()->take(5)->get();
+
+        return view('admin.dashboard', compact('stats', 'domisiliData', 'newUsers'));
     }
 
-    // 2. KELOLA BOBOT GAP (Sesuai DFD Input: Data Pembobotan Kriteria)
-    public function editWeights()
+    public function users()
+    {
+        // Urutkan: Pending paling atas, lalu Rejected, lalu Approved
+        $users = User::where('role', 'user')
+            ->orderByRaw("FIELD(status, 'pending', 'rejected', 'approved')")
+            ->latest()
+            ->get();
+            
+        return view('admin.users', compact('users'));
+    }
+
+    public function approveUser($id)
+    {
+        User::where('id', $id)->update(['status' => 'approved']);
+        return back()->with('success', 'User berhasil disetujui (Approved)!');
+    }
+
+    // --- [BARU] FUNGSI TOLAK (Minta Revisi) ---
+    public function rejectUser($id)
+    {
+        User::where('id', $id)->update(['status' => 'rejected']);
+        return back()->with('warning', 'User ditolak. Mereka diminta memperbaiki data.');
+    }
+
+    // --- [UPDATE] FUNGSI HAPUS (Permanen) ---
+    public function deleteUser($id)
+    {
+        User::destroy($id);
+        return back()->with('success', 'User berhasil dihapus permanen.');
+    }
+
+    // 3. HALAMAN ATUR BOBOT SPK
+    public function weights()
     {
         $weights = DB::table('gap_weights')->orderBy('gap', 'asc')->get();
         return view('admin.weights', compact('weights'));
     }
 
-    public function updateWeights(Request $request)
+    public function updateWeight(Request $request)
     {
-        // Admin bisa update nilai bobot misal Gap 0 jadi 6
+        // Logic update massal sederhana
         foreach ($request->weights as $id => $val) {
             DB::table('gap_weights')->where('id', $id)->update(['weight' => $val]);
         }
-        return back()->with('success', 'Data Pembobotan berhasil diupdate!');
+        return back()->with('success', 'Bobot berhasil diperbarui!');
     }
-
-    // 3. VALIDASI USER (Sesuai DFD Input: Validasi User)
-    public function usersList()
+    
+    // 4. PRINT LAPORAN (Sederhana view print)
+    public function printReport()
     {
         $users = User::where('role', 'user')->get();
-        return view('admin.users_list', compact('users'));
-    }
-
-    public function deleteUser($id)
-    {
-        User::destroy($id); // Anggap ini proses validasi (hapus user spam)
-        return back()->with('success', 'User dihapus/ditolak.');
+        return view('admin.print_users', compact('users'));
     }
 }

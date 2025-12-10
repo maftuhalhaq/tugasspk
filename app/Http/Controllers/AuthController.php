@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -17,27 +18,30 @@ class AuthController extends Controller
 
     public function processRegister(Request $request)
     {
-        // 1. Validasi Input
+        // Validasi
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:4|confirmed',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // 2. Buat User Baru
+        // Buat User Baru
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Pastikan ini pakai Hash::make
+            'password' => Hash::make($request->password),
             'role' => 'user',
-            // Data profil lain biarkan default/null dulu
+            'status' => 'pending', // Penting: Status awal pending
         ]);
 
-        // 3. Login-kan otomatis (Auto Login)
+        // Kirim Event Registered (Penyebab Error Tadi)
+        event(new Registered($user));
+
+        // Login Otomatis
         Auth::login($user);
 
-        // 4. Lempar ke halaman lengkapi profil
-        return redirect('/profil')->with('success', 'Registrasi berhasil! Silakan lengkapi data dirimu.');
+        // Redirect ke Profil
+        return redirect('/profil')->with('success', 'Akun berhasil dibuat! Silakan lengkapi data diri.');
     }
 
     // --- FITUR LOGIN ---

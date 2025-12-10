@@ -27,7 +27,11 @@ class User extends Authenticatable
         'domisili',
         'income_level',
         'education_level',
-        'date_of_birth'
+        'date_of_birth',
+        'status',
+        'profile_photo_path',
+        'whatsapp',
+        'instagram',
     ];
 
     /**

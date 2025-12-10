@@ -1,321 +1,450 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Sistem Pencarian Jodoh</title>
+    <title>Cupid AI - Find True Love</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        body { font-family: 'Nunito', sans-serif; background-color: #fff0f6; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #f9a8d4; border-radius: 10px; border: 2px solid #fff0f6; }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 2px solid rgba(255, 255, 255, 0.6); }
+        .blob-anim { animation: blob-bounce 6s infinite ease-in-out; }
+        @keyframes blob-bounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
+        
+        /* Shimmer Effect */
+        .card-wrapper { position: relative; overflow: hidden; }
+        .shimmer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+            transform: skewX(-20deg) translateX(-150%);
+            transition: transform 0.5s; pointer-events: none; z-index: 20; mix-blend-mode: overlay;
+        }
+        .card-wrapper:hover .shimmer { animation: shimmer-anim 0.8s forwards; }
+        @keyframes shimmer-anim { 100% { transform: skewX(-20deg) translateX(150%); } }
+
+        /* Floating Hearts */
+        .float-heart { position: absolute; bottom: -20px; opacity: 0; transition: all 0.5s; z-index: 15; pointer-events: none; }
+        .card-wrapper:hover .float-heart { animation: floatUp 2s infinite ease-in-out; opacity: 1; }
+        .float-heart:nth-child(1) { left: 10%; animation-delay: 0s; font-size: 1.2rem; color: #f43f5e; }
+        .float-heart:nth-child(2) { left: 80%; animation-delay: 0.5s; font-size: 1rem; color: #ec4899; }
+        .float-heart:nth-child(3) { left: 50%; animation-delay: 1s; font-size: 1.5rem; color: #e11d48; }
+        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) rotate(20deg); opacity: 0; } }
     </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden text-gray-700">
 
-    <header class="bg-white shadow-sm z-20 h-16 flex justify-between items-center px-8 border-b border-gray-200">
+    <header class="bg-white/90 backdrop-blur shadow-sm z-30 h-20 flex justify-between items-center px-8 border-b-2 border-pink-100 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <span class="text-3xl">💖</span>
+            <div class="bg-gradient-to-tr from-rose-400 to-pink-400 p-2.5 rounded-2xl shadow-lg text-white blob-anim">
+                <i class="fa-solid fa-heart text-2xl"></i>
+            </div>
             <div>
-                <h1 class="text-xl font-bold text-gray-800 tracking-tight leading-none">Sistem Pencarian Jodoh</h1>
-                <p class="text-[10px] text-gray-500 tracking-wider uppercase">SPK Profile Matching</p>
+                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-none">Cupid AI</h1>
+                <p class="text-xs text-pink-500 font-bold uppercase tracking-widest">Sistem Pencarian Jodoh</p>
             </div>
         </div>
-        
         <div class="flex items-center gap-4">
-            <div class="text-right hidden sm:block">
-                <p class="text-xs text-gray-400 uppercase">Pengguna</p>
-                <p class="text-sm font-bold text-gray-700">{{ $user->name }}</p>
+            <div class="hidden md:block text-right">
+                <p class="text-xs text-gray-400 font-bold uppercase">Sedang Login</p>
+                <p class="text-lg font-bold text-gray-800 leading-tight">{{ $user->name }}</p>
             </div>
             <form action="/logout" method="POST">
                 @csrf
-                <button type="submit" class="bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 text-xs px-4 py-2 rounded-full font-bold transition border border-gray-200">
-                    Keluar
+                <button type="submit" class="bg-white border-2 border-pink-200 hover:bg-rose-500 hover:text-white hover:border-rose-500 text-gray-600 text-sm px-6 py-2.5 rounded-full font-bold transition-all shadow-sm">
+                    <i class="fa-solid fa-power-off mr-2"></i> Keluar
                 </button>
             </form>
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden">
+    <main class="flex-1 flex overflow-hidden relative">
+        <div class="absolute top-20 left-10 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob"></div>
+        <div class="absolute bottom-10 right-10 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000"></div>
 
-        <aside class="w-full md:w-[30%] bg-white border-r border-gray-200 overflow-y-auto hidden md:flex flex-col">
-            <div class="p-6 space-y-6">
-                
-                <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-5 border border-gray-200 shadow-sm relative overflow-hidden group">
-                    <div class="flex justify-between items-center mb-4 relative z-10">
-                        <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wide">Profil Saya</h2>
-                        <a href="/profil" class="text-[10px] bg-white border border-gray-300 hover:border-blue-500 hover:text-blue-600 px-3 py-1 rounded-full transition shadow-sm font-semibold">
-                            Edit Data
-                        </a>
+        <aside class="w-80 bg-white/70 border-r-2 border-pink-100 overflow-y-auto hidden md:flex flex-col z-10 glass-panel p-5 space-y-6">
+            
+            <div class="bg-white rounded-[2rem] p-5 shadow-sm border-2 border-white relative group transition-all hover:border-pink-200">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center text-3xl border-4 border-white shadow-md overflow-hidden">
+                        @if($user->profile_photo_path)
+                            <img src="{{ asset('storage/' . $user->profile_photo_path) }}" class="w-full h-full object-cover">
+                        @else
+                            {{ $user->gender == 'L' ? '👦' : '👧' }}
+                        @endif
                     </div>
-                    <div class="space-y-3 relative z-10">
-                        <div>
-                            <p class="text-xs text-gray-400">Nama Lengkap</p>
-                            <p class="font-bold text-gray-800 text-lg leading-tight">{{ $user->name }}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <p class="text-xs text-gray-400">Domisili</p>
-                                <p class="font-semibold text-gray-700 text-sm">{{ $user->domisili }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-400">Agama</p>
-                                <p class="font-semibold text-gray-700 text-sm">{{ $user->religion }}</p>
-                            </div>
-                        </div>
-                        <div class="pt-2 border-t border-gray-100">
-                            <p class="text-xs text-gray-400 mb-1">Status Ekonomi</p>
-                            <div class="flex justify-between items-center">
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">
-                                    Rp {{ number_format($user->income_level, 0, ',', '.') }}
-                                </span>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">
-                                    @php $l=$user->education_level; @endphp
-                                    {{ $l==1?'SMA':($l==2?'D3':($l==3?'S1':($l==4?'S2':'S3'))) }}
-                                </span>
-                            </div>
-                        </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 truncate w-32">{{ $user->name }}</h2>
+                        <span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">{{ $user->domisili }}</span>
                     </div>
                 </div>
-
-                <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-5 border border-blue-100 shadow-sm relative overflow-hidden">
-                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-sm font-bold text-blue-500 uppercase tracking-wide">Kriteria Idaman</h2>
-                        <a href="/atur-kriteria" class="text-[10px] bg-white border border-blue-200 hover:bg-blue-600 hover:text-white text-blue-600 px-3 py-1 rounded-full transition shadow-sm font-semibold">
-                            Atur Ulang
-                        </a>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between p-2 bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 font-bold">Agama</span>
+                        <span class="font-bold">{{ $user->religion }}</span>
                     </div>
+                    <div class="flex justify-between p-2 bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 font-bold">Pendidikan</span>
+                        <span class="font-bold">
+                            @php 
+                                $eduMap = [1=>'SMA/SMK', 2=>'Diploma (D3)', 3=>'Sarjana (S1)', 4=>'Magister (S2)', 5=>'Doktor (S3)'];
+                                echo $eduMap[$user->education_level] ?? 'Level '.$user->education_level;
+                            @endphp
+                        </span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 font-bold">Gaji</span>
+                        <span class="font-bold text-green-600">Rp {{ number_format($user->income_level, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+                <a href="/profil" class="mt-3 w-full block text-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold py-2.5 rounded-xl transition"><i class="fa-solid fa-pen mr-1"></i> Edit Profil</a>
+            </div>
+            
+            <div class="bg-white/80 rounded-[2rem] p-5 shadow-sm border-2 border-blue-50 relative">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                        <div class="bg-blue-100 p-1.5 rounded-lg text-blue-500"><i class="fa-solid fa-crosshairs"></i></div>
+                        Kriteria Idaman
+                    </h2>
+                    <a href="/atur-kriteria" class="text-[10px] bg-blue-50 hover:bg-blue-500 hover:text-white text-blue-600 px-2 py-1 rounded-lg transition font-bold">
+                        <i class="fa-solid fa-gear"></i> Ubah
+                    </a>
+                </div>
 
-                    @if($user->preference)
-                    <div class="space-y-2">
-                        @foreach([
-                            ['label'=>'Agama', 'val'=>$user->preference->preferred_religion, 'strict'=>$user->preference->strict_religion],
-                            ['label'=>'Kota', 'val'=>$user->preference->preferred_domisili, 'strict'=>$user->preference->strict_domisili],
-                            ['label'=>'Pendidikan', 'val'=>($user->preference->preferred_education_level==1?'SMA':($user->preference->preferred_education_level==2?'D3':($user->preference->preferred_education_level==3?'S1':($user->preference->preferred_education_level==4?'S2':'S3')))), 'strict'=>$user->preference->strict_education],
-                        ] as $item)
-                        <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-blue-50">
-                            <div>
-                                <p class="text-[10px] text-gray-400">{{ $item['label'] }}</p>
-                                <p class="text-sm font-bold text-gray-700">{{ $item['val'] }}</p>
-                            </div>
+                @if($user->preference)
+                <div class="space-y-3">
+                    @php
+                        $pEdu = $user->preference->preferred_education_level;
+                        $eduLabel = $eduMap[$pEdu] ?? 'Level '.$pEdu;
+                        $gajiLabel = 'Rp ' . number_format($user->preference->preferred_income_level, 0, ',', '.');
+                    @endphp
+
+                    @foreach([
+                        ['label'=>'Agama', 'val'=>$user->preference->preferred_religion, 'strict'=>$user->preference->strict_religion, 'icon'=>'fa-hands-praying'],
+                        ['label'=>'Kota', 'val'=>$user->preference->preferred_domisili, 'strict'=>$user->preference->strict_domisili, 'icon'=>'fa-map-location-dot'],
+                        ['label'=>'Usia', 'val'=>$user->preference->min_age . ' - ' . $user->preference->max_age . ' Thn', 'strict'=>true, 'icon'=>'fa-cake-candles'],
+                        ['label'=>'Min. Gaji', 'val'=>$gajiLabel, 'strict'=>$user->preference->strict_income, 'icon'=>'fa-sack-dollar'],
+                        ['label'=>'Pendidikan', 'val'=>$eduLabel, 'strict'=>$user->preference->strict_education, 'icon'=>'fa-user-graduate'],
+                    ] as $item)
+                    
+                    <div class="relative p-3 rounded-xl border-l-4 {{ $item['strict'] ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-300' }} shadow-sm">
+                        <div class="absolute top-2 right-2">
                             @if($item['strict'])
-                                <span class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Wajib</span>
+                                <i class="fa-solid fa-lock text-red-400 text-xs" title="Syarat Wajib"></i>
                             @else
-                                <span class="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Opsional</span>
+                                <i class="fa-regular fa-circle-check text-blue-400 text-xs" title="Opsional"></i>
                             @endif
                         </div>
-                        @endforeach
 
-                        <div class="bg-white p-2 rounded-lg border border-blue-50 mt-1">
-                            <div class="flex justify-between">
-                                <p class="text-[10px] text-gray-400">Min. Gaji</p>
-                                @if($user->preference->strict_income)
-                                    <span class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Wajib</span>
-                                @else
-                                    <span class="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Opsional</span>
-                                @endif
+                        <div class="flex items-center gap-3">
+                            <div class="text-lg {{ $item['strict'] ? 'text-red-400' : 'text-blue-400' }} w-6 text-center">
+                                <i class="fa-solid {{ $item['icon'] }}"></i>
                             </div>
-                            <p class="text-sm font-bold text-blue-600">Rp {{ number_format($user->preference->preferred_income_level, 0, ',', '.') }}</p>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">{{ $item['label'] }}</p>
+                                <p class="text-sm font-bold text-gray-700 leading-none truncate w-32">{{ $item['val'] }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 pt-1 border-t {{ $item['strict'] ? 'border-red-100' : 'border-blue-100' }}">
+                            <p class="text-[9px] font-bold {{ $item['strict'] ? 'text-red-500' : 'text-blue-500' }}">
+                                {{ $item['strict'] ? '⚠️ WAJIB' : '✨ OPSIONAL' }}
+                            </p>
                         </div>
                     </div>
-                    @else
-                        <div class="text-center py-4 text-gray-400 text-xs italic">Belum ada kriteria.</div>
-                    @endif
+                    @endforeach
                 </div>
+                @endif
             </div>
         </aside>
 
-        <section class="w-full md:w-[70%] bg-gray-50 overflow-y-auto relative">
-            
-            <div class="sticky top-0 bg-gray-50/95 backdrop-blur z-10 px-8 py-6 border-b border-gray-200 flex justify-between items-end">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Rekomendasi Kandidat</h2>
-                    <p class="text-sm text-gray-500 mt-1">{{ $status }}</p>
+        <section class="flex-1 overflow-y-auto z-10 p-6 md:p-10 relative">
+            <div class="max-w-6xl mx-auto h-full flex flex-col pb-20">
+                
+                <div class="mb-6 text-center md:text-left">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 flex items-center justify-center md:justify-start gap-2">
+                        Hasil Pencarian 
+                        @if($isPerfectMatch) <span class="bg-rose-500 text-white text-xs px-3 py-1 rounded-full animate-bounce shadow-lg">PERFECT MATCH!</span> @endif
+                    </h2>
+                    <p class="text-base font-medium text-pink-500 mt-1">{{ $status }}</p>
                 </div>
-                <div class="bg-white px-4 py-1.5 rounded-full border border-gray-200 shadow-sm text-xs font-medium text-gray-600">
-                    Ditemukan: <span class="text-blue-600 font-bold">{{ $candidates->count() }}</span>
-                </div>
-            </div>
 
-            <div class="p-8 pb-20">
-                <div class="grid grid-cols-1 gap-6"> 
-                    @foreach($candidates as $candidate)
-                    <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col md:flex-row">
+                @if($isPerfectMatch)
+                    <div class="flex-1 flex items-center justify-center py-6">
+                        <div class="w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl shadow-rose-200 border-4 border-rose-100 relative overflow-hidden transform hover:scale-[1.01] transition duration-500 card-wrapper group">
+                            <div class="shimmer"></div>
+                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/confetti.png')] opacity-10 animate-pulse"></div>
+                            <div class="p-10 text-center relative z-10">
+                                <div class="mb-6 inline-block relative">
+                                    <div class="w-48 h-48 rounded-full border-8 border-rose-200 p-1 shadow-2xl bg-white overflow-hidden">
+                                        @if($candidates->first()->profile_photo_path)
+                                            <img src="{{ asset('storage/' . $candidates->first()->profile_photo_path) }}" class="w-full h-full object-cover rounded-full">
+                                        @else
+                                            <div class="w-full h-full rounded-full bg-gradient-to-tr from-pink-100 to-rose-50 flex items-center justify-center text-8xl">
+                                                {{ $candidates->first()->gender == 'P' ? '👩' : '👨' }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="absolute -bottom-4 -right-4 bg-rose-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-xl font-black border-4 border-white shadow-lg animate-bounce">
+                                        5.0
+                                    </div>
+                                </div>
+                                <h2 class="text-4xl font-black text-gray-800 mb-2">{{ $candidates->first()->name }}</h2>
+                                
+                                <p class="text-lg text-gray-500 font-bold mb-6 flex justify-center items-center gap-2">
+                                    <span><i class="fa-solid fa-location-dot text-rose-500"></i> {{ $candidates->first()->domisili }}</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span><i class="fa-solid fa-cake-candles text-rose-400"></i> {{ \Carbon\Carbon::parse($candidates->first()->date_of_birth)->age }} Tahun</span>
+                                </p>
+                                
+                                <button onclick="document.getElementById('modal-{{ $candidates->first()->id }}').classList.remove('hidden')" 
+                                    class="bg-gradient-to-r from-rose-500 to-pink-600 text-white text-lg font-extrabold py-4 px-12 rounded-full shadow-xl shadow-rose-300 hover:shadow-rose-400 transition transform hover:-translate-y-1 relative z-30 cursor-pointer">
+                                    <i class="fa-solid fa-envelope-open-text mr-2"></i> Buka Rincian Lengkap
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                @else
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 candidate-list">
+                        @foreach($candidates as $candidate)
                         
-                        <div class="p-6 flex-1">
+                        <div class="card-wrapper bg-white rounded-[2.5rem] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-pink-50 hover:border-pink-300 transition-all hover:-translate-y-2 group overflow-hidden">
                             
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ $candidate->name }}</h3>
-                                    <div class="text-sm text-gray-500 mt-1 flex gap-2">
-                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-xs">{{ $candidate->domisili }}</span>
-                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-xs">{{ $candidate->religion }}</span>
-                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-xs">{{ \Carbon\Carbon::parse($candidate->date_of_birth)->age }} Tahun</span>
+                            <div class="shimmer"></div>
+                            <div class="float-heart"><i class="fa-solid fa-heart"></i></div>
+                            <div class="float-heart"><i class="fa-solid fa-heart"></i></div>
+                            <div class="float-heart"><i class="fa-solid fa-heart"></i></div>
+
+                            <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br {{ $candidate->match_color }} opacity-10 rounded-bl-[100px] -z-0"></div>
+
+                            <div class="flex flex-col gap-3 relative z-10">
+                                <div class="flex items-start gap-4">
+                                    <div class="relative">
+                                        <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center text-4xl border-4 border-pink-100 shadow-md transform group-hover:scale-110 transition duration-500 overflow-hidden">
+                                            @if($candidate->profile_photo_path)
+                                                <img src="{{ asset('storage/' . $candidate->profile_photo_path) }}" class="w-full h-full object-cover">
+                                            @else
+                                                {{ $candidate->gender == 'P' ? '👩' : '👨' }}
+                                            @endif
+                                        </div>
+                                        <div class="absolute -bottom-2 -right-2 bg-gradient-to-r {{ $candidate->match_color }} text-white text-[10px] font-black px-2 py-1 rounded-lg border-2 border-white shadow-sm">
+                                            {{ $candidate->spk_score }}
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0 pt-1">
+                                        <div class="flex justify-between items-start">
+                                            <h3 class="text-xl font-bold text-gray-800 truncate">{{ $candidate->name }}</h3>
+                                            <span class="text-[9px] font-bold uppercase tracking-wider py-1 px-2 rounded-lg bg-white border border-gray-100 shadow-sm text-gray-600">
+                                                <i class="{{ $candidate->match_icon }} mr-1 text-pink-500"></i> {{ str_replace(['🥰','💍','😉','😅'], '', $candidate->match_label) }}
+                                            </span>
+                                        </div>
+                                        
+                                        <p class="text-xs text-gray-500 font-bold mt-1 mb-2">
+                                            {{ $candidate->domisili }} • {{ \Carbon\Carbon::parse($candidate->date_of_birth)->age }} Thn
+                                        </p>
+                                        
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                <div class="bg-gradient-to-r {{ $candidate->match_color }} h-1.5 rounded-full" style="width: {{ $candidate->score_breakdown['percent'] }}%"></div>
+                                            </div>
+                                            <span class="text-[9px] font-bold text-gray-400">{{ round($candidate->score_breakdown['percent']) }}%</span>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <div class="bg-white/60 p-2 rounded-xl border border-gray-100 flex flex-wrap gap-1.5">
+                                    @if(count($candidate->matched_tags) > 0)
+                                        @foreach(array_slice($candidate->matched_tags, 0, 2) as $tag)
+                                            <span class="flex-1 inline-flex justify-center items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold {{ $tag['col'] }} border border-white shadow-sm">
+                                                <i class="fa-solid {{ $tag['icon'] }}"></i> {{ $tag['txt'] }}
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        <span class="w-full text-center text-[10px] text-gray-400 italic py-1.5">Kecocokan Parsial</span>
+                                    @endif
+                                </div>
+
                                 <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.remove('hidden')" 
-                                    class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-1">
-                                    📄 Lihat Profil Lengkap
+                                    class="w-full mt-1 bg-gray-900 hover:bg-black text-white text-sm font-bold py-3 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 group relative z-30 cursor-pointer">
+                                    <i class="fa-regular fa-eye group-hover:scale-110 transition"></i> Lihat Detail Lengkap
                                 </button>
                             </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @endif
 
-                            <div class="mt-4 flex flex-wrap gap-3">
-                                <div class="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg border border-green-100">
-                                    <span>💰</span>
-                                    <span class="font-bold text-sm">Rp {{ number_format($candidate->income_level/1000000, 1) }} Jt</span>
+                {{-- MODAL (POPUP) --}}
+                @foreach($candidates as $candidate)
+                <div id="modal-{{ $candidate->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-md transition-opacity" onclick="this.parentElement.classList.add('hidden')"></div>
+                    
+                    <div class="flex min-h-full items-center justify-center p-4">
+                        <div class="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all border-4 border-white flex flex-col md:flex-row">
+                            
+                            <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.add('hidden')" class="absolute top-4 right-4 z-20 bg-black/10 hover:bg-black/30 text-gray-600 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition backdrop-blur">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+
+                            <div class="w-full md:w-2/5 bg-gradient-to-br from-pink-50 to-rose-50 p-8 flex flex-col items-center justify-center text-center">
+                                <div class="w-36 h-36 rounded-full border-[6px] border-white bg-white shadow-xl flex items-center justify-center text-7xl mb-4 relative overflow-hidden">
+                                    @if($candidate->profile_photo_path)
+                                        <img src="{{ asset('storage/' . $candidate->profile_photo_path) }}" class="w-full h-full object-cover">
+                                    @else
+                                        {{ $candidate->gender == 'P' ? '👩' : '👨' }}
+                                    @endif
                                 </div>
-                                <div class="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100">
-                                    <span>🎓</span>
-                                    <span class="font-bold text-sm">
-                                        @php $p = $candidate->education_level; @endphp
-                                        {{ $p==1?'SMA': ($p==2?'D3': ($p==3?'S1': ($p==4?'S2':'S3'))) }}
+                                <h3 class="text-2xl font-black text-gray-800 leading-tight mb-1">{{ $candidate->name }}</h3>
+                                
+                                {{-- REVISI UTAMA: UMUR DITAMPILKAN DI SINI DI POPUP --}}
+                                <div class="flex items-center justify-center gap-2 mb-6">
+                                    <span class="bg-white px-3 py-1 rounded-full shadow-sm text-sm font-bold text-rose-500 border border-rose-100 flex items-center gap-1">
+                                        <i class="fa-solid fa-location-dot"></i> {{ $candidate->domisili }}
                                     </span>
+                                    <span class="bg-white px-3 py-1 rounded-full shadow-sm text-sm font-bold text-gray-600 border border-gray-100 flex items-center gap-1">
+                                        <i class="fa-solid fa-cake-candles text-pink-400"></i> {{ \Carbon\Carbon::parse($candidate->date_of_birth)->age }} Tahun
+                                    </span>
+                                </div>
+
+                                <div class="w-full space-y-2">
+                                    <div class="bg-white p-3 rounded-2xl shadow-sm flex items-center gap-3 text-left border border-blue-50">
+                                        <div class="bg-blue-50 p-2 rounded-full text-blue-500"><i class="fa-solid fa-graduation-cap"></i></div>
+                                        <div>
+                                            <p class="text-[9px] uppercase font-bold text-gray-400">Pendidikan</p>
+                                            <p class="font-bold text-gray-700 text-xs">
+                                                @php echo $eduMap[$candidate->education_level] ?? '-'; @endphp
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-2xl shadow-sm flex items-center gap-3 text-left border border-green-50">
+                                        <div class="bg-green-50 p-2 rounded-full text-green-500"><i class="fa-solid fa-wallet"></i></div>
+                                        <div>
+                                            <p class="text-[9px] uppercase font-bold text-gray-400">Penghasilan</p>
+                                            <p class="font-bold text-gray-700 text-xs">Rp {{ number_format($candidate->income_level, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-2xl shadow-sm flex items-center gap-3 text-left border border-purple-50">
+                                        <div class="bg-purple-50 p-2 rounded-full text-purple-500"><i class="fa-solid fa-star-and-crescent"></i></div>
+                                        <div>
+                                            <p class="text-[9px] uppercase font-bold text-gray-400">Agama</p>
+                                            <p class="font-bold text-gray-700 text-xs">{{ $candidate->religion }}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <details class="mt-5 group border-t border-gray-100 pt-3">
-                                <summary class="text-xs font-semibold text-blue-600 cursor-pointer hover:text-blue-800 flex items-center gap-1 select-none transition">
-                                    <span class="group-open:rotate-90 transition-transform text-[10px]">▶</span>
-                                    Lihat Alasan Kecocokan
-                                </summary>
-                                <div class="mt-2 pl-4 text-xs text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                    @foreach(['gaji', 'pendidikan', 'agama', 'kota'] as $key)
+                            <div class="w-full md:w-3/5 p-8 bg-white overflow-y-auto max-h-[80vh]">
+                                <div class="flex items-center gap-3 mb-6">
+                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br {{ $candidate->match_color }} text-white flex items-center justify-center text-xl shadow-lg">
+                                        <i class="{{ $candidate->match_icon }}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Hubungan</p>
+                                        <h4 class="text-xl font-black text-gray-800">{{ str_replace(['🥰','💍','😉','😅'], '', $candidate->match_label) }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-300 mb-6 relative" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 8px 8px;">
+                                    <div class="absolute -top-3 left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md transform -rotate-2">
+                                        🧾 Resep Perhitungan Cinta
+                                    </div>
+                                    
+                                    <div class="space-y-1 text-xs mt-3 font-mono text-gray-600">
+                                        <div class="flex justify-between"><span>Bobot Agama</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Agama'], 1) }}</span></div>
+                                        <div class="flex justify-between"><span>Bobot Kota</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Kota'], 1) }}</span></div>
+                                        <div class="flex justify-between"><span>Bobot Gaji</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Gaji'], 1) }}</span></div>
+                                        <div class="flex justify-between"><span>Bobot Pend</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Pendidikan'], 1) }}</span></div>
+                                        
+                                        <div class="border-t border-gray-300 border-dashed my-2"></div>
+                                        
+                                        @if($candidate->math_details['bonus_total'] > 0)
+                                            <div class="mt-2 p-2 bg-green-50 rounded border border-green-100">
+                                                <div class="flex justify-between text-green-700 font-bold mb-1">
+                                                    <span>🎁 Bonus Sekufu</span>
+                                                    <span>+{{ $candidate->math_details['bonus_total'] }}</span>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <div class="flex justify-between text-lg font-black items-center mt-2">
+                                            <span class="text-gray-800 uppercase text-[10px]">Total Skor SPK</span>
+                                            <span class="text-rose-500 bg-rose-50 px-2 rounded">{{ $candidate->spk_score }} / 5.0</span>
+                                        </div>
+                                        
+                                        <div class="mt-1 text-[9px] text-gray-400 text-right">
+                                            ( {{ $candidate->spk_score }} ÷ 5.0 ) x 100 = <span class="font-bold text-rose-500">{{ number_format($candidate->math_details['final_percent'], 0) }}% Match</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 mb-6">
+                                    <h5 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Checklist Kecocokan</h5>
+                                    @foreach(['agama', 'kota', 'gaji', 'pendidikan'] as $key)
                                         @if(isset($candidate->match_reason[$key]))
-                                        <div class="flex gap-2">
-                                            <span>
-                                                @if(str_contains($candidate->match_reason[$key], '✅')) ✅
-                                                @elseif(str_contains($candidate->match_reason[$key], '⚠️')) ⚠️
-                                                @else ❌ @endif
-                                            </span>
-                                            <span>{{ str_replace(['✅ ','❌ ','⚠️ '], '', $candidate->match_reason[$key]) }}</span>
+                                        <div class="flex gap-3 text-sm items-start bg-white p-2 rounded-lg border border-gray-50 hover:border-pink-100 transition">
+                                            <div class="mt-0.5 min-w-[20px]">
+                                                @if(str_contains($candidate->match_reason[$key], '✅')) <i class="fa-solid fa-circle-check text-green-500"></i>
+                                                @elseif(str_contains($candidate->match_reason[$key], '⚠️')) <i class="fa-solid fa-circle-exclamation text-yellow-500"></i>
+                                                @else <i class="fa-solid fa-circle-xmark text-red-400"></i> @endif
+                                            </div>
+                                            <p class="text-gray-600 leading-snug text-xs">{{ str_replace(['✅ ','❌ ','⚠️ '], '', $candidate->match_reason[$key]) }}</p>
                                         </div>
                                         @endif
                                     @endforeach
                                 </div>
-                            </details>
-                        </div>
 
-                        <div class="bg-gray-50 p-6 flex flex-col items-center justify-center min-w-[140px] border-l border-gray-100 text-center">
-                            <span class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">Kecocokan</span>
-                            <span class="text-5xl font-black {{ $candidate->spk_score >= 4.5 ? 'text-green-500' : ($candidate->spk_score >= 3.0 ? 'text-blue-500' : 'text-gray-400') }}">
-                                {{ $candidate->spk_score }}
-                            </span>
-                            
-                            <span class="mt-2 px-3 py-1 text-[10px] font-bold rounded-full
-                                {{ $candidate->spk_score >= 4.5 ? 'bg-green-100 text-green-700' : ($candidate->spk_score >= 3.0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600') }}">
-                                @if($candidate->spk_score >= 4.5) Sangat Cocok
-                                @elseif($candidate->spk_score >= 3.0) Cukup Cocok
-                                @else Kurang @endif
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <div id="modal-{{ $candidate->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"></div>
-                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-200">
-                                
-                                <div class="h-32 {{ $candidate->gender == 'P' ? 'bg-gradient-to-r from-pink-400 to-rose-500' : 'bg-gradient-to-r from-blue-400 to-indigo-500' }}">
-                                    <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.add('hidden')" class="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white rounded-full p-1.5 transition">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
+                                <div class="grid grid-cols-1 {{ $candidate->instagram ? 'sm:grid-cols-2' : '' }} gap-3 sticky bottom-0 bg-white pt-2">
+                                    <a href="{{ $candidate->wa_link }}" target="_blank" onclick="recordInteraction({{ $candidate->id }})" 
+                                       class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-100 transition flex justify-center items-center gap-2">
+                                        <i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp
+                                    </a>
+                                    @if($candidate->instagram)
+                                        <a href="https://instagram.com/{{ str_replace('@', '', $candidate->instagram) }}" target="_blank" 
+                                           class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-100 transition flex justify-center items-center gap-2">
+                                            <i class="fa-brands fa-instagram text-xl"></i> Instagram
+                                        </a>
+                                    @endif
                                 </div>
-                                
-                                <div class="px-6 pb-6">
-                                    <div class="relative -mt-12 mb-4 flex justify-between items-end">
-                                        <div class="h-24 w-24 rounded-full border-4 border-white bg-white shadow-lg flex items-center justify-center text-5xl">
-                                            {{ $candidate->gender == 'P' ? '👩' : '👨' }}
-                                        </div>
-                                        <div class="text-right mb-2">
-                                            <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Kecocokan</p>
-                                            <p class="text-4xl font-black {{ $candidate->spk_score >= 4.5 ? 'text-green-500' : 'text-blue-600' }}">
-                                                {{ $candidate->spk_score }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="mb-6">
-                                        <h3 class="text-2xl font-bold text-gray-900">{{ $candidate->name }}</h3>
-                                        <p class="text-gray-500 text-sm flex items-center gap-2">
-                                            <span>📍 {{ $candidate->domisili }}</span><span>•</span><span>{{ $candidate->religion }}</span><span>•</span><span>{{ \Carbon\Carbon::parse($candidate->date_of_birth)->age }} Tahun</span>
-                                        </p>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div class="space-y-4">
-                                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wide border-b pb-1">Data Faktual</h4>
-                                            <div class="grid grid-cols-2 gap-3">
-                                                <div class="bg-gray-50 p-2.5 rounded-lg">
-                                                    <p class="text-[10px] text-gray-400">Pendidikan</p>
-                                                    <p class="font-bold text-gray-700 text-sm">
-                                                        @php $p=$candidate->education_level; @endphp
-                                                        {{ $p==1?'SMA': ($p==2?'D3': ($p==3?'S1': ($p==4?'S2':'S3'))) }}
-                                                    </p>
-                                                </div>
-                                                <div class="bg-green-50 p-2.5 rounded-lg border border-green-100">
-                                                    <p class="text-[10px] text-green-600">Penghasilan</p>
-                                                    <p class="font-bold text-green-700 text-sm">
-                                                        Rp {{ number_format($candidate->income_level/1000000, 1) }} Jt
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="pt-2">
-                                                <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                                                    <span>💬</span> Chat via WhatsApp
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wide border-b border-gray-200 pb-2 mb-3">Analisis Kecocokan</h4>
-                                            <div class="space-y-3 text-xs text-gray-600">
-                                                 @foreach(['gaji', 'pendidikan', 'agama', 'kota'] as $key)
-                                                    @if(isset($candidate->match_reason[$key]))
-                                                    <div class="flex gap-2 items-start">
-                                                        <div class="mt-0.5 min-w-[16px]">
-                                                            @if(str_contains($candidate->match_reason[$key], '✅')) <span class="text-green-500">✔</span>
-                                                            @elseif(str_contains($candidate->match_reason[$key], '⚠️')) <span class="text-yellow-500">⚡</span>
-                                                            @else <span class="text-red-500">✖</span> @endif
-                                                        </div>
-                                                        <p>{{ str_replace(['✅ ','❌ ','⚠️ '], '', $candidate->match_reason[$key]) }}</p>
-                                                    </div>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
-                    @endforeach
-
-                    @if($candidates->isEmpty())
-                    <div class="col-span-full text-center py-20">
-                         <div class="text-6xl mb-4 grayscale opacity-30">💘</div>
-                        <h3 class="text-lg font-bold text-gray-500">Belum ada kandidat yang pas.</h3>
-                    </div>
-                    @endif
                 </div>
+                @endforeach
+
             </div>
         </section>
-
     </main>
 
-    @if(session('success'))
     <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
+        function recordInteraction(candidateId) {
+            if(candidateId === 99999) return;
+            fetch('/record-interaction/' + candidateId, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            }).catch(err => console.log('Gagal merekam interaksi:', err));
+        }
+
+        anime({
+            targets: '.candidate-card',
+            scale: [0.95, 1],
+            opacity: [0, 1],
+            delay: anime.stagger(150),
+            easing: 'spring(1, 80, 10, 0)'
         });
     </script>
-    @endif
-
 </body>
 </html>
