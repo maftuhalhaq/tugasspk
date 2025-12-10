@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('gap_weights', function (Blueprint $table) {
+            $table->id();
+            $table->integer('gap')->unique(); // Selisih (Contoh: 0, 1, -1)
+            $table->float('weight'); // Nilai Bobot (Contoh: 5, 4.5, 4)
+            $table->string('description')->nullable(); // Keterangan (Contoh: "Sesuai", "Kelebihan 1 tingkat")
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('gap_weights');
+    }
+};
