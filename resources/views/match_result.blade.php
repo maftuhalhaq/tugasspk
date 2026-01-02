@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>BAMN AMORE - Find True Love</title>
+    <title>BAMN AMORE - Temukan Belahan Jiwa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -49,7 +49,7 @@
                 <i class="fa-solid fa-heart text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-none">BAMN AMORE</h1>
+                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-none">Cupid AI</h1>
                 <p class="text-xs text-pink-500 font-bold uppercase tracking-widest">Sistem Pencarian Jodoh</p>
             </div>
         </div>
@@ -154,12 +154,6 @@
                                 <p class="text-sm font-bold text-gray-700 leading-none truncate w-32">{{ $item['val'] }}</p>
                             </div>
                         </div>
-
-                        <div class="mt-2 pt-1 border-t {{ $item['strict'] ? 'border-red-100' : 'border-blue-100' }}">
-                            <p class="text-[9px] font-bold {{ $item['strict'] ? 'text-red-500' : 'text-blue-500' }}">
-                                {{ $item['strict'] ? '⚠️ WAJIB' : '✨ OPSIONAL' }}
-                            </p>
-                        </div>
                     </div>
                     @endforeach
                 </div>
@@ -217,6 +211,10 @@
                 @else
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 candidate-list">
                         @foreach($candidates as $candidate)
+                        @php
+                            // Hitung persentase manual untuk visual bar
+                            $percent = min(100, ($candidate->spk_score / 5) * 100);
+                        @endphp
 
                         <div class="card-wrapper bg-white rounded-[2.5rem] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-pink-50 hover:border-pink-300 transition-all hover:-translate-y-2 group overflow-hidden">
 
@@ -255,22 +253,36 @@
 
                                         <div class="flex items-center gap-2">
                                             <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                <div class="bg-gradient-to-r {{ $candidate->match_color }} h-1.5 rounded-full" style="width: {{ $candidate->score_breakdown['percent'] }}%"></div>
+                                                <div class="bg-gradient-to-r {{ $candidate->match_color }} h-1.5 rounded-full" style="width: {{ $percent }}%"></div>
                                             </div>
-                                            <span class="text-[9px] font-bold text-gray-400">{{ round($candidate->score_breakdown['percent']) }}%</span>
+                                            <span class="text-[9px] font-bold text-gray-400">{{ round($percent) }}%</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="bg-white/60 p-2 rounded-xl border border-gray-100 flex flex-wrap gap-1.5">
-                                    @if(count($candidate->matched_tags) > 0)
-                                        @foreach(array_slice($candidate->matched_tags, 0, 2) as $tag)
-                                            <span class="flex-1 inline-flex justify-center items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold {{ $tag['col'] }} border border-white shadow-sm">
-                                                <i class="fa-solid {{ $tag['icon'] }}"></i> {{ $tag['txt'] }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="w-full text-center text-[10px] text-gray-400 italic py-1.5">Kecocokan Parsial</span>
+                                    {{-- Tag Kecocokan Simpel --}}
+                                    @php
+                                        $md = $candidate->math_details ?? [];
+                                        $valRel = $md['val_rel'] ?? 0;
+                                        $valLoc = $md['val_loc'] ?? 0;
+                                        $valInc = $md['val_inc'] ?? 0;
+                                    @endphp
+
+                                    @if($valRel >= 4)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100">
+                                            <i class="fa-solid fa-hands-praying mr-1"></i> Seiman
+                                        </span>
+                                    @endif
+                                    @if($valLoc >= 4)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-100">
+                                            <i class="fa-solid fa-map-location-dot mr-1"></i> Sekota
+                                        </span>
+                                    @endif
+                                    @if($valInc >= 3)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold text-green-600 bg-green-50 border border-green-100">
+                                            <i class="fa-solid fa-money-bill-wave mr-1"></i> Gaji Cocok
+                                        </span>
                                     @endif
                                 </div>
 
@@ -284,7 +296,7 @@
                     </div>
                 @endif
 
-                {{-- MODAL (POPUP) --}}
+                {{-- MODAL DETAIL (POPUP) --}}
                 @foreach($candidates as $candidate)
                 <div id="modal-{{ $candidate->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                     <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-md transition-opacity" onclick="this.parentElement.classList.add('hidden')"></div>
@@ -306,7 +318,6 @@
                                 </div>
                                 <h3 class="text-2xl font-black text-gray-800 leading-tight mb-1">{{ $candidate->name }}</h3>
 
-                                {{-- REVISI UTAMA: UMUR DITAMPILKAN DI SINI DI POPUP --}}
                                 <div class="flex items-center justify-center gap-2 mb-6">
                                     <span class="bg-white px-3 py-1 rounded-full shadow-sm text-sm font-bold text-rose-500 border border-rose-100 flex items-center gap-1">
                                         <i class="fa-solid fa-location-dot"></i> {{ $candidate->domisili }}
@@ -354,24 +365,54 @@
                                     </div>
                                 </div>
 
+                                @php
+                                    // Ambil detail hitungan dengan aman (Null Coalescing)
+                                    $md = $candidate->math_details ?? [];
+                                    $ptRel = number_format($md['val_rel'] ?? 0, 1);
+                                    $ptLoc = number_format($md['val_loc'] ?? 0, 1);
+                                    $ptInc = number_format($md['val_inc'] ?? 0, 1);
+                                    $ptEdu = number_format($md['val_edu'] ?? 0, 1);
+                                    $bonus = $md['bonus'] ?? 0;
+
+                                    // Hitung persentase akhir untuk tampilan
+                                    $finalPct = min(100, ($candidate->spk_score / 5) * 100);
+                                @endphp
+
                                 <div class="bg-gray-50 p-5 rounded-2xl border-2 border-dashed border-gray-300 mb-6 relative" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 8px 8px;">
                                     <div class="absolute -top-3 left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md transform -rotate-2">
                                         🧾 Resep Perhitungan Cinta
                                     </div>
 
-                                    <div class="space-y-1 text-xs mt-3 font-mono text-gray-600">
-                                        <div class="flex justify-between"><span>Bobot Agama</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Agama'], 1) }}</span></div>
-                                        <div class="flex justify-between"><span>Bobot Kota</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Kota'], 1) }}</span></div>
-                                        <div class="flex justify-between"><span>Bobot Gaji</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Gaji'], 1) }}</span></div>
-                                        <div class="flex justify-between"><span>Bobot Pend</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Pendidikan'], 1) }}</span></div>
+                                    <div class="space-y-2 text-xs mt-3 font-mono text-gray-600">
+                                        <div class="flex justify-between text-[10px] text-gray-400 uppercase font-bold border-b border-gray-200 pb-1 mb-2">
+                                            <span>Kriteria</span>
+                                            <span>Poin Didapat (Max 5.0)</span>
+                                        </div>
+
+                                        <div class="flex justify-between">
+                                            <span>Agama (Keyakinan)</span>
+                                            <span class="font-bold {{ $ptRel >= 4 ? 'text-green-600' : 'text-gray-600' }}">{{ $ptRel }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Lokasi (Domisili)</span>
+                                            <span class="font-bold {{ $ptLoc >= 4 ? 'text-green-600' : 'text-gray-600' }}">{{ $ptLoc }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Ekonomi (Gaji)</span>
+                                            <span class="font-bold {{ $ptInc >= 3 ? 'text-green-600' : 'text-orange-500' }}">{{ $ptInc }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Pendidikan</span>
+                                            <span class="font-bold {{ $ptEdu >= 3 ? 'text-green-600' : 'text-orange-500' }}">{{ $ptEdu }}</span>
+                                        </div>
 
                                         <div class="border-t border-gray-300 border-dashed my-2"></div>
 
-                                        @if($candidate->math_details['bonus_total'] > 0)
+                                        @if($bonus > 0)
                                             <div class="mt-2 p-2 bg-green-50 rounded border border-green-100">
                                                 <div class="flex justify-between text-green-700 font-bold mb-1">
-                                                    <span>🎁 Bonus Sekufu</span>
-                                                    <span>+{{ $candidate->math_details['bonus_total'] }}</span>
+                                                    <span>🎁 Bonus Sekufu/Lebih</span>
+                                                    <span>+{{ number_format($bonus, 2) }}</span>
                                                 </div>
                                             </div>
                                         @endif
@@ -382,25 +423,17 @@
                                         </div>
 
                                         <div class="mt-1 text-[9px] text-gray-400 text-right">
-                                            ( {{ $candidate->spk_score }} ÷ 5.0 ) x 100 = <span class="font-bold text-rose-500">{{ number_format($candidate->math_details['final_percent'], 0) }}% Match</span>
+                                            ( {{ $candidate->spk_score }} ÷ 5.0 ) x 100 = <span class="font-bold text-rose-500">{{ round($finalPct) }}% Match</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="space-y-2 mb-6">
-                                    <h5 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Checklist Kecocokan</h5>
-                                    @foreach(['agama', 'kota', 'gaji', 'pendidikan'] as $key)
-                                        @if(isset($candidate->match_reason[$key]))
-                                        <div class="flex gap-3 text-sm items-start bg-white p-2 rounded-lg border border-gray-50 hover:border-pink-100 transition">
-                                            <div class="mt-0.5 min-w-[20px]">
-                                                @if(str_contains($candidate->match_reason[$key], '✅')) <i class="fa-solid fa-circle-check text-green-500"></i>
-                                                @elseif(str_contains($candidate->match_reason[$key], '⚠️')) <i class="fa-solid fa-circle-exclamation text-yellow-500"></i>
-                                                @else <i class="fa-solid fa-circle-xmark text-red-400"></i> @endif
-                                            </div>
-                                            <p class="text-gray-600 leading-snug text-xs">{{ str_replace(['✅ ','❌ ','⚠️ '], '', $candidate->match_reason[$key]) }}</p>
-                                        </div>
-                                        @endif
-                                    @endforeach
+                                    <h5 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Analisis Singkat</h5>
+                                    @if($ptRel >= 5)<div class="flex gap-2 text-xs items-center text-green-600"><i class="fa-solid fa-check-circle"></i> Agama Sesuai</div>@endif
+                                    @if($ptLoc >= 5)<div class="flex gap-2 text-xs items-center text-green-600"><i class="fa-solid fa-check-circle"></i> Lokasi Sesuai (Sekota)</div>@endif
+                                    @if($ptInc >= 4)<div class="flex gap-2 text-xs items-center text-blue-600"><i class="fa-solid fa-circle-info"></i> Range Gaji Sangat Ideal</div>@endif
+                                    @if($ptEdu <= 2)<div class="flex gap-2 text-xs items-center text-orange-500"><i class="fa-solid fa-triangle-exclamation"></i> Gap Pendidikan Cukup Jauh</div>@endif
                                 </div>
 
                                 <div class="grid grid-cols-1 {{ $candidate->instagram ? 'sm:grid-cols-2' : '' }} gap-3 sticky bottom-0 bg-white pt-2">
@@ -439,7 +472,7 @@
         }
 
         anime({
-            targets: '.candidate-card',
+            targets: '.card-wrapper',
             scale: [0.95, 1],
             opacity: [0, 1],
             delay: anime.stagger(150),
