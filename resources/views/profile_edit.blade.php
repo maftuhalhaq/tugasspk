@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>{{ $user->status == 'pending' ? 'Lengkapi Profil' : 'Edit Profil' }} - Cupid AI</title>
+    <title>{{ $user->status == 'pending' ? 'Lengkapi Profil' : 'Edit Profil' }} - BAMN AMORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 
     <style>
         body { font-family: 'Nunito', sans-serif; background-color: #fff0f6; }
-        
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -20,7 +20,7 @@
         /* Background Animasi */
         .blob-anim { animation: blob-bounce 6s infinite ease-in-out; }
         @keyframes blob-bounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
-        
+
         /* Glass Effect */
         .glass-card {
             background: rgba(255, 255, 255, 0.9);
@@ -37,16 +37,16 @@
                 <i class="fa-solid fa-heart text-lg md:text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-lg md:text-2xl font-extrabold text-gray-800 tracking-tight leading-none">Cupid AI</h1>
+                <h1 class="text-lg md:text-2xl font-extrabold text-gray-800 tracking-tight leading-none">BAMN AMORE</h1>
                 <p class="text-[9px] md:text-[10px] text-pink-500 font-bold uppercase tracking-widest hidden sm:block">
                     {{ $user->status == 'pending' ? 'Langkah 1: Data Diri' : 'Edit Profil' }}
                 </p>
             </div>
         </div>
-        
+
         @if($user->status == 'approved')
             <a href="/cari-jodoh" class="group bg-white border-2 border-pink-100 text-gray-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-all font-bold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
-                <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform duration-300"></i> 
+                <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform duration-300"></i>
                 <span>Kembali</span>
             </a>
         @else
@@ -60,14 +60,14 @@
     </header>
 
     <main class="flex-1 container mx-auto px-4 py-8 md:py-12 max-w-3xl relative">
-        
+
         <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
             <div class="absolute top-40 left-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob"></div>
             <div class="absolute bottom-20 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000"></div>
         </div>
 
         <div class="glass-card rounded-[2rem] p-6 md:p-10 shadow-xl shadow-pink-100/50">
-            
+
             @if($user->status == 'rejected')
             <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-xl animate-pulse">
                 <div class="flex items-center gap-3">
@@ -82,7 +82,7 @@
 
             <div class="mb-8 border-b-2 border-dashed border-pink-100 pb-6 text-center md:text-left">
                 <h1 class="text-2xl md:text-3xl font-black text-gray-800 mb-2 flex items-center justify-center md:justify-start gap-2">
-                    <i class="fa-solid {{ $user->status == 'pending' ? 'fa-user-plus' : 'fa-user-pen' }} text-rose-500"></i> 
+                    <i class="fa-solid {{ $user->status == 'pending' ? 'fa-user-plus' : 'fa-user-pen' }} text-rose-500"></i>
                     {{ $user->status == 'rejected' ? 'Perbaiki Profil' : ($user->status == 'pending' ? 'Lengkapi Profil' : 'Edit Profil') }}
                 </h1>
                 <p class="text-sm text-gray-500 font-medium">
@@ -92,21 +92,21 @@
 
             <form action="/profil" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
-                
+
                 <div class="flex flex-col items-center mb-6">
                     <div class="relative group cursor-pointer" onclick="document.getElementById('photoInput').click()">
                         @php
-                            $photoUrl = $user->profile_photo_path 
-                                ? asset('storage/' . $user->profile_photo_path) 
+                            $photoUrl = $user->profile_photo_path
+                                ? asset('storage/' . $user->profile_photo_path)
                                 : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=fce7f3&color=db2777&size=256';
                         @endphp
-                        
+
                         <img id="photoPreview" src="{{ $photoUrl }}" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-xl group-hover:opacity-75 transition duration-300 bg-white">
-                        
+
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                             <i class="fa-solid fa-camera text-white text-3xl drop-shadow-md"></i>
                         </div>
-                        
+
                         <div class="absolute bottom-1 right-1 bg-rose-500 text-white p-2 rounded-full border-2 border-white shadow-md">
                             <i class="fa-solid fa-pencil text-xs"></i>
                         </div>
@@ -114,7 +114,7 @@
                     <p class="text-xs text-gray-400 mt-2 font-bold uppercase tracking-wide">
                         {{ $user->status == 'pending' ? '*Wajib Upload Foto Asli' : 'Klik foto untuk mengganti' }}
                     </p>
-                    
+
                     <input type="file" name="photo" id="photoInput" class="hidden" accept="image/*" onchange="previewImage(event)">
                 </div>
 

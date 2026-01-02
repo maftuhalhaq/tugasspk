@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Atur Kriteria - Cupid AI</title>
+    <title>Atur Kriteria - BAMN AMORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    
+
     <style>
         body { font-family: 'Nunito', sans-serif; background-color: #fff0f6; }
-        
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #f9a8d4; border-radius: 10px; border: 2px solid #fff0f6; }
-        
+
         /* Glass Effect */
         .glass-card {
             background: rgba(255, 255, 255, 0.9);
@@ -26,7 +26,7 @@
         /* Custom Toggle Switch */
         .toggle-checkbox:checked { right: 0; border-color: #f43f5e; }
         .toggle-checkbox:checked + .toggle-label { background-color: #f43f5e; }
-        
+
         .card-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
@@ -38,26 +38,26 @@
                 <i class="fa-solid fa-heart text-lg md:text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-lg md:text-2xl font-extrabold text-gray-800 tracking-tight leading-none">Cupid AI</h1>
+                <h1 class="text-lg md:text-2xl font-extrabold text-gray-800 tracking-tight leading-none">BAMN AMORE</h1>
                 <p class="text-[9px] md:text-[10px] text-pink-500 font-bold uppercase tracking-widest hidden sm:block">Atur Kriteria</p>
             </div>
         </div>
-        
+
         <a href="/cari-jodoh" class="group bg-white border-2 border-pink-100 text-gray-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-all font-bold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform duration-300"></i> 
+            <i class="fa-solid fa-arrow-left text-sm group-hover:-translate-x-1 transition-transform duration-300"></i>
             <span>Kembali</span>
         </a>
     </header>
 
     <main class="flex-1 container mx-auto px-4 py-8 md:py-12 max-w-4xl relative">
-        
+
         <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
             <div class="absolute top-40 left-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob"></div>
             <div class="absolute bottom-20 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000"></div>
         </div>
 
         <div class="glass-card rounded-[2rem] p-6 md:p-10 shadow-xl shadow-pink-100/50">
-            
+
             <div class="mb-8 border-b-2 border-dashed border-pink-100 pb-6 text-center md:text-left">
                 <h1 class="text-2xl md:text-3xl font-black text-gray-800 mb-2 flex items-center justify-center md:justify-start gap-2">
                     <i class="fa-solid fa-sliders text-rose-500"></i> Preferensi Jodoh
@@ -123,7 +123,7 @@
                                 </label>
                             </div>
                         </div>
-                        
+
                         <div class="flex items-center gap-4">
                             <div class="flex-1">
                                 <label class="text-[10px] font-bold text-gray-400 ml-1">Minimal</label>
@@ -208,16 +208,16 @@
                 // Style STRICT (Merah - Tegas)
                 card.classList.remove('border-gray-100', 'bg-white');
                 card.classList.add('border-rose-200', 'bg-rose-50/50');
-                
-                text.innerText = "SYARAT UTAMA"; 
+
+                text.innerText = "SYARAT UTAMA";
                 text.classList.remove('text-gray-400');
                 text.classList.add('text-rose-500');
             } else {
                 // Style OPSIONAL (Netral - Santai)
                 card.classList.add('border-gray-100', 'bg-white');
                 card.classList.remove('border-rose-200', 'bg-rose-50/50');
-                
-                text.innerText = "PREFERENSI SAJA"; 
+
+                text.innerText = "PREFERENSI SAJA";
                 text.classList.remove('text-rose-500');
                 text.classList.add('text-gray-400');
             }

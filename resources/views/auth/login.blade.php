@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Masuk - Cupid AI</title>
+    <title>Masuk - BAMN AMORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body { font-family: 'Nunito', sans-serif; }
-        
+
         /* 1. MESH GRADIENT (Sama dengan Register) */
         .mesh-bg {
             background: linear-gradient(-45deg, #a18cd1, #fbc2eb, #fad0c4, #ff9a9e);
@@ -39,12 +39,12 @@
 <body class="min-h-screen mesh-bg flex items-center justify-center p-4 md:p-6">
 
     <div class="w-full max-w-5xl bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col md:flex-row relative border-4 border-white/50">
-        
+
         <div class="hidden md:flex w-1/2 relative overflow-hidden items-center justify-center p-12 bg-gradient-to-br from-white/30 to-white/10">
             <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-300 rounded-full blur-[100px] opacity-40 animate-pulse"></div>
-            
+
             <div class="relative w-full max-w-sm z-10">
-                
+
                 <div class="absolute top-0 right-0 w-64 bg-white/60 backdrop-blur-md p-4 rounded-3xl border border-white shadow-lg transform rotate-6 opacity-60 scale-90 float-slow">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-rose-200"></div>
@@ -62,13 +62,13 @@
                                 <i class="fa-solid fa-heart"></i>
                             </div>
                             <div>
-                                <h4 class="font-black text-gray-800 text-sm">Cupid AI</h4>
+                                <h4 class="font-black text-gray-800 text-sm">BAMN AMORE</h4>
                                 <p class="text-[10px] text-gray-500 font-bold">Baru saja</p>
                             </div>
                         </div>
                         <span class="bg-red-500 w-3 h-3 rounded-full animate-ping"></span>
                     </div>
-                    
+
                     <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100 mb-4">
                         <p class="text-gray-600 text-sm font-bold leading-relaxed">
                             "Hai! Seseorang dengan kecocokan <span class="text-purple-600">98%</span> baru saja melihat profilmu. Masuk untuk melihat siapa dia! 👀"
@@ -87,7 +87,7 @@
         </div>
 
         <div class="w-full md:w-1/2 p-8 md:p-14 flex flex-col justify-center relative z-10">
-            
+
             <div class="mb-10">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Selamat Datang</span>
@@ -109,7 +109,7 @@
 
             <form action="/login" method="POST" class="space-y-6">
                 @csrf
-                
+
                 <div class="input-group">
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-1 transition-colors">Email Address</label>
                     <div class="relative">
@@ -129,11 +129,11 @@
                         <input type="password" name="password" class="w-full bg-gray-50 border-2 border-gray-100 text-gray-700 text-sm rounded-2xl focus:ring-0 block p-4 pl-12 font-bold outline-none transition-all placeholder-gray-300" placeholder="••••••••" required>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="group w-full bg-gray-900 hover:bg-black text-white font-extrabold py-4 rounded-2xl shadow-xl shadow-purple-200 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden">
-                    <span class="relative z-10">Masuk Sekarang</span> 
+                    <span class="relative z-10">Masuk Sekarang</span>
                     <i class="fa-solid fa-right-to-bracket relative z-10 group-hover:translate-x-1 transition-transform"></i>
-                    
+
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>
                 </button>
             </form>

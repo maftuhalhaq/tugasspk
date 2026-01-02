@@ -34,11 +34,11 @@ class ProfileController extends Controller
             'religion'        => 'required|string',
             'education_level' => 'required|integer|in:1,2,3,4,5',
             'real_income'     => 'required|numeric|min:0', // Di form name-nya 'real_income'
-            
+
             // Validasi Kontak & Foto
             'whatsapp'        => 'required|numeric',       // Wajib angka
             'instagram'       => 'nullable|string|max:50', // Opsional
-            'photo'           => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+            'photo'           => 'nullable|image|mimes:jpeg,png,jpg,gif', // Max 2MB
         ]);
 
         // 2. Update Data Text ke Object User
@@ -62,11 +62,11 @@ class ProfileController extends Controller
             // Simpan foto baru ke folder 'public/profile-photos'
             // Hasilnya path seperti: profile-photos/namafileacak.jpg
             $path = $request->file('photo')->store('profile-photos', 'public');
-            
+
             // Simpan path ke database
             $user->profile_photo_path = $path;
         }
-        
+
         // Jika user ditolak admin, lalu dia update profil, ubah jadi pending lagi
         if ($user->status === 'rejected') {
             $user->status = 'pending';

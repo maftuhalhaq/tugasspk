@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Cupid AI - Temukan Jodoh Impian</title>
+    <title>BAMN AMORE - Temukan Jodoh Impian</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body { font-family: 'Nunito', sans-serif; background-color: #fff0f6; overflow-x: hidden; }
-        
+
         /* Gradient Text yang lebih lembut */
-        .gradient-text { 
-            background: linear-gradient(to right, #fb7185, #d946ef); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
+        .gradient-text {
+            background: linear-gradient(to right, #fb7185, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
+
         /* Background Animations */
         .blob-anim { animation: blob-bounce 8s infinite ease-in-out; }
         .blob-anim-slow { animation: blob-bounce 12s infinite ease-in-out reverse; }
         @keyframes blob-bounce { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-20px, -20px) scale(1.05); } }
-        
+
         /* Glass Effect yang lebih halus */
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
@@ -47,7 +47,7 @@
             <div class="bg-gradient-to-tr from-rose-400 to-pink-500 p-2.5 rounded-2xl shadow-lg text-white">
                 <i class="fa-solid fa-heart text-2xl"></i>
             </div>
-            <span class="font-black text-2xl tracking-tight text-gray-800">Cupid AI</span>
+            <span class="font-black text-2xl tracking-tight text-gray-800">BAMN AMORE</span>
         </div>
         <div class="flex items-center gap-3 md:gap-6">
             <a href="/login" class="text-gray-600 font-bold hover:text-rose-500 transition text-sm md:text-base hidden sm:block">Masuk</a>
@@ -58,22 +58,22 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-24 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 relative z-10 min-h-[80vh]">
-        
+
         <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
             <div class="inline-flex items-center gap-2 bg-white border-2 border-pink-100 text-pink-600 px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">
-                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> 
+                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
                 <span>Sistem Profile Matching Cerdas</span>
             </div>
-            
+
             <h1 class="text-5xl md:text-7xl font-black text-gray-900 leading-tight tracking-tight">
                 Temukan <br class="hidden md:block"> Belahan Jiwamu <br>
                 <span class="gradient-text">Secara Ilmiah.</span>
             </h1>
-            
+
             <p class="text-lg md:text-xl text-gray-500 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
                 Lupakan tebak-tebakan. Kami menggunakan algoritma SPK untuk mencocokkan kriteria Anda dengan kandidat yang paling relevan dan akurat.
             </p>
-            
+
             <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <a href="/register" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold px-8 py-4 rounded-2xl text-lg shadow-xl shadow-rose-200/80 hover:shadow-rose-300 transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3">
                     <i class="fa-solid fa-magnifying-glass-heart text-xl"></i>
@@ -84,7 +84,7 @@
                    <span>Pelajari Caranya</span>
                 </a>
             </div>
-            
+
             <div class="pt-4 flex items-center justify-center lg:justify-start gap-2 text-sm font-bold text-gray-400">
                 <i class="fa-solid fa-shield-heart text-green-500"></i> 100% Privasi Aman & Terjaga
             </div>
@@ -92,7 +92,7 @@
 
         <div class="lg:w-1/2 relative w-full max-w-lg lg:max-w-full">
             <div class="absolute inset-0 bg-gradient-to-tr from-rose-200 via-pink-200 to-purple-200 rounded-[4rem] filter blur-[70px] opacity-50 animate-pulse"></div>
-            
+
             <div class="absolute -top-6 -right-6 bg-white p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] floating z-20">
                 <i class="fa-solid fa-ring text-3xl text-yellow-500"></i>
             </div>
@@ -102,14 +102,14 @@
 
             <div class="glass-panel p-8 md:p-12 rounded-[3rem] shadow-2xl relative z-10 overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/40 to-transparent opacity-50"></div>
-                
+
                 <div class="relative z-10 flex flex-col items-center text-center">
                     <div class="flex items-center justify-center gap-4 mb-8 w-full">
                         <div class="w-24 h-24 md:w-32 md:h-32 bg-blue-100 rounded-full border-[6px] border-white shadow-lg flex items-center justify-center text-5xl md:text-6xl relative">
                             👨
                              <div class="absolute -bottom-3 bg-white border border-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full shadow-sm">Anda</div>
                         </div>
-                        
+
                         <div class="flex-1 h-2 bg-gradient-to-r from-blue-200 via-pink-300 to-rose-200 rounded-full relative overflow-hidden">
                             <div class="absolute top-0 left-0 h-full w-1/2 bg-white/30 animate-pulse"></div>
                              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-sm z-10">
@@ -145,7 +145,7 @@
         <div class="max-w-7xl mx-auto px-6 md:px-12">
             <div class="text-center mb-16">
                 <span class="text-rose-500 font-black uppercase tracking-widest text-sm mb-2 block">Keunggulan Kami</span>
-                <h2 class="text-3xl md:text-5xl font-black text-gray-900">Kenapa Harus Cupid AI? 🤔</h2>
+                <h2 class="text-3xl md:text-5xl font-black text-gray-900">Kenapa Harus BAMN AMORE? 🤔</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -193,7 +193,7 @@
     </section>
 
     <footer class="text-center py-10 text-gray-400 text-sm font-bold relative z-10">
-        <p>&copy; {{ date('Y') }} Cupid AI. Dibuat dengan 💖 untuk Tugas Kelompok SPK.</p>
+        <p>&copy; {{ date('Y') }} BAMN AMORE. Dibuat dengan 💖 untuk Tugas Kelompok SPK.</p>
     </footer>
 
 </body>

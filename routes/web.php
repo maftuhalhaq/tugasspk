@@ -114,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
         // 3. Konfigurasi Bobot SPK
         Route::get('/weights', [AdminController::class, 'weights'])->name('weights');
         Route::post('/weights', [AdminController::class, 'updateWeight']);
+        Route::post('/weights/reset', [AdminController::class, 'resetCriteriaWeights'])->name('weights.reset');
 
         // 4. Cetak Laporan
         Route::get('/print', [AdminController::class, 'printReport'])->name('print');

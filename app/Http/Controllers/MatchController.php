@@ -17,209 +17,123 @@ class MatchController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user->gender || !$user->income_level) return redirect('/profil')->with('warning', 'Lengkapi profil dulu!');
 
-        // Cek Data Diri
-        if (!$user->gender || !$user->income_level)
-            return redirect('/profil')->with('warning', 'Lengkapi profil dulu!');
-
-        // Cek Kriteria
         $pref = UserPreference::where('user_id', $user->id)->first();
-        if (!$pref)
-            return redirect('/atur-kriteria')->with('warning', 'Atur kriteria dulu!');
+        if (!$pref) return redirect('/atur-kriteria')->with('warning', 'Atur kriteria dulu!');
 
-        // --- A. QUERY DATABASE (FILTERING) ---
-        $query = User::where('id', '!=', $user->id)
-            ->where('gender', '!=', $user->gender)
-            ->where('role', 'user'); // Hanya cari user biasa, bukan admin
+        // --- 1. LOAD SETTINGS (OTAK DINAMIS) ---
+        $jsonPath = storage_path('app/spk_settings.json');
 
-        // 1. Filter Wajib (Strict Mode)
-        if ($pref->strict_religion)
-            $query->where('religion', $pref->preferred_religion);
-        if ($pref->strict_domisili)
-            $query->where('domisili', $pref->preferred_domisili);
-        if ($pref->strict_income)
-            $query->where('income_level', '>=', $pref->preferred_income_level);
-        if ($pref->strict_education)
-            $query->where('education_level', '>=', $pref->preferred_education_level);
+        // Default Config (Jika file belum ada)
+        $defaults = [
+            'income_ranges' => [
+                ['limit' => 0, 'weight' => 5.0],
+                ['limit' => 500000, 'weight' => 4.5],
+                ['limit' => 1000000, 'weight' => 4.0],
+                ['limit' => 3000000, 'weight' => 3.0],
+                ['limit' => 5000000, 'weight' => 2.0],
+                ['limit' => 10000000, 'weight' => 1.0],
+            ],
+            // Config Baru (Requestmu: Semua bisa diedit)
+            'points' => [
+                'rel_match' => 5.0, 'rel_mismatch' => 1.0,
+                'loc_match' => 5.0, 'loc_mismatch' => 1.0,
+                'bonus_income' => 0.25, 'bonus_edu' => 0.25
+            ]
+        ];
 
-        // 2. Filter Usia (Logic: Hitung Tahun Lahir)
-        // Jika min_age 20 tahun, berarti lahir sebelum tahun (sekarang - 20)
-        if ($pref->min_age) {
-            $maxBirthDate = now()->subYears($pref->min_age)->format('Y-m-d');
-            $query->where('date_of_birth', '<=', $maxBirthDate);
-        }
-        if ($pref->max_age) {
-            $minBirthDate = now()->subYears($pref->max_age)->format('Y-m-d');
-            $query->where('date_of_birth', '>=', $minBirthDate);
-        }
+        $settings = file_exists($jsonPath) ? json_decode(file_get_contents($jsonPath), true) : $defaults;
+
+        $incRanges = $settings['income_ranges'] ?? $defaults['income_ranges'];
+        $pts = array_merge($defaults['points'], $settings['points'] ?? []); // Merge biar aman
+
+        // --- 2. FILTERING DATA ---
+        $query = User::where('id', '!=', $user->id)->where('gender', '!=', $user->gender)->where('role', 'user');
+
+        if ($pref->strict_religion) $query->where('religion', $pref->preferred_religion);
+        if ($pref->strict_domisili) $query->where('domisili', $pref->preferred_domisili);
+        if ($pref->strict_income) $query->where('income_level', '>=', $pref->preferred_income_level);
+        if ($pref->strict_education) $query->where('education_level', '>=', $pref->preferred_education_level);
+
+        if ($pref->min_age) $query->where('date_of_birth', '<=', now()->subYears($pref->min_age)->format('Y-m-d'));
+        if ($pref->max_age) $query->where('date_of_birth', '>=', now()->subYears($pref->max_age)->format('Y-m-d'));
 
         $allCandidates = $query->get();
-        $gapMap = DB::table('gap_weights')->pluck('weight', 'gap')->toArray();
-        $eduLabels = [1 => 'SMA/SMK', 2 => 'Diploma (D3)', 3 => 'Sarjana (S1)', 4 => 'Magister (S2)', 5 => 'Doktor (S3)'];
 
-        // --- B. HITUNG SKOR SPK ---
+        // Ambil Bobot GAP Pendidikan (DB) & Bobot Prioritas Slider (DB)
+        $gapMap = DB::table('gap_weights')->pluck('weight', 'gap')->toArray();
+        $criteria = DB::table('criteria_weights')->pluck('weight', 'name')->toArray();
+
+        // Fallback jika DB kosong
+        $wRel = $criteria['religion'] ?? 0.25;
+        $wCity = $criteria['domisili'] ?? 0.25;
+        $wIncome = $criteria['income'] ?? 0.25;
+        $wEdu = $criteria['education'] ?? 0.25;
+
+        // --- 3. HITUNG SKOR (CORE ENGINE) ---
         foreach ($allCandidates as $candidate) {
 
-            // Hitung Bobot Criteria
-            $isSameReligion = $candidate->religion == $pref->preferred_religion;
-            $weightReligion = $isSameReligion ? 5.0 : 1.0;
+            // A. Agama (Pakai Config Admin)
+            $isSameRel = $candidate->religion == $pref->preferred_religion;
+            $valReligion = $isSameRel ? $pts['rel_match'] : $pts['rel_mismatch'];
 
-            $isSameCity = strtolower($candidate->domisili) == strtolower($pref->preferred_domisili);
-            $weightCity = $isSameCity ? 5.0 : 1.0;
+            // B. Lokasi (Pakai Config Admin)
+            $isSameLoc = strtolower($candidate->domisili) == strtolower($pref->preferred_domisili);
+            $valCity = $isSameLoc ? $pts['loc_match'] : $pts['loc_mismatch'];
 
+            // C. Penghasilan (Dynamic Ranges)
             $selisih = abs($candidate->income_level - $pref->preferred_income_level);
-            if ($selisih == 0)
-                $weightIncome = 5.0;
-            elseif ($selisih <= 1000000)
-                $weightIncome = 4.5;
-            elseif ($selisih <= 3000000)
-                $weightIncome = 4.0;
-            elseif ($selisih <= 5000000)
-                $weightIncome = 3.0;
-            elseif ($selisih <= 10000000)
-                $weightIncome = 2.0;
-            else
-                $weightIncome = 1.0;
+            $valIncome = 1.0; // Default terendah
+            foreach ($incRanges as $range) {
+                if ($selisih <= $range['limit']) {
+                    $valIncome = $range['weight'];
+                    break;
+                }
+            }
 
-            $gapEdu = $candidate->education_level - $pref->preferred_education_level;
-            $weightEdu = $gapMap[$gapEdu] ?? 1.0;
+            // D. Pendidikan (Gap Mapping dari DB)
+            $gapEdu = abs($candidate->education_level - $pref->preferred_education_level);
+            $valEdu = $gapMap[$gapEdu] ?? 1.0;
 
-            // Hitung Total Skor
-            $baseScore = ($weightReligion + $weightCity + $weightIncome + $weightEdu) / 4;
+            // TOTAL WEIGHTED SUM
+            $baseScore = ($valReligion * $wRel) + ($valCity * $wCity) + ($valIncome * $wIncome) + ($valEdu * $wEdu);
 
-            // Bonus Sekufu
+            // BONUS POINTS (Pakai Config Admin)
             $bonusScore = 0;
-            $bonusReasons = [];
-            if ($user->income_level >= $candidate->income_level) {
-                $bonusScore += 0.25;
-                $bonusReasons[] = "Penghasilanmu setara/lebih mapan (+0.25)";
-            }
-            if ($user->education_level >= $candidate->education_level) {
-                $bonusScore += 0.25;
-                $bonusReasons[] = "Pendidikanmu setara/lebih tinggi (+0.25)";
-            }
+            if ($user->income_level >= $candidate->income_level) $bonusScore += $pts['bonus_income'];
+            if ($user->education_level >= $candidate->education_level) $bonusScore += $pts['bonus_edu'];
 
-            $finalScore = $baseScore + $bonusScore;
-            $candidate->spk_score = number_format($finalScore, 2);
-            $scoreVal = (float) $candidate->spk_score;
+            $candidate->spk_score = number_format($baseScore + $bonusScore, 2);
+            $valFinal = (float) $candidate->spk_score;
 
-            // Data Breakdown (Untuk Popup)
-            $candidate->score_breakdown = [
-                'base' => number_format($baseScore, 2),
-                'bonus' => $bonusScore > 0 ? "+" . $bonusScore : "0",
-                'percent' => min(100, ($scoreVal / 5) * 100)
-            ];
+            // Tiering & Visual (Tetap sama)
+            if ($valFinal >= 4.9) { $candidate->tier = 1; $candidate->match_label = "Jodoh Dunia Akhirat"; $candidate->match_icon = "fa-solid fa-ring"; $candidate->match_color = "from-rose-500 to-red-600"; }
+            elseif ($valFinal >= 4.0) { $candidate->tier = 2; $candidate->match_label = "Si Paling Cocok"; $candidate->match_icon = "fa-solid fa-heart-circle-check"; $candidate->match_color = "from-pink-400 to-rose-500"; }
+            elseif ($valFinal >= 3.0) { $candidate->tier = 3; $candidate->match_label = "Boleh Dicoba"; $candidate->match_icon = "fa-solid fa-face-grin-wink"; $candidate->match_color = "from-purple-400 to-indigo-500"; }
+            else { $candidate->tier = 4; $candidate->match_label = "Temen Aja"; $candidate->match_icon = "fa-solid fa-user-group"; $candidate->match_color = "from-gray-400 to-slate-500"; }
 
+            // Debugging Data (Untuk Popup)
             $candidate->math_details = [
-                'scores' => ['Agama' => $weightReligion, 'Kota' => $weightCity, 'Gaji' => $weightIncome, 'Pendidikan' => $weightEdu],
-                'base_avg' => number_format($baseScore, 2),
-                'bonus_total' => $bonusScore,
-                'bonus_list' => $bonusReasons,
-                'final_percent' => min(100, ($scoreVal / 5) * 100)
+                'val_rel' => $valReligion,
+                'val_loc' => $valCity,
+                'val_inc' => $valIncome,
+                'val_edu' => $valEdu,
+                'bonus' => $bonusScore
             ];
 
-            // Tier & Visual
-            if ($scoreVal >= 4.9) {
-                $candidate->tier = 1;
-                $candidate->match_label = "Jodoh Dunia Akhirat";
-                $candidate->match_icon = "fa-solid fa-ring";
-                $candidate->match_color = "from-rose-500 to-red-600";
-            } elseif ($scoreVal >= 4.0) {
-                $candidate->tier = 2;
-                $candidate->match_label = "Si Paling Cocok";
-                $candidate->match_icon = "fa-solid fa-heart-circle-check";
-                $candidate->match_color = "from-pink-400 to-rose-500";
-            } elseif ($scoreVal >= 3.0) {
-                $candidate->tier = 3;
-                $candidate->match_label = "Boleh Dicoba Nih";
-                $candidate->match_icon = "fa-solid fa-face-grin-wink";
-                $candidate->match_color = "from-purple-400 to-indigo-500";
-            } else {
-                $candidate->tier = 4;
-                $candidate->match_label = "Temen Dulu Aja";
-                $candidate->match_icon = "fa-solid fa-user-group";
-                $candidate->match_color = "from-gray-400 to-slate-500";
-            }
-
-            // Tags
-            $matchedTags = [];
-            if ($isSameReligion)
-                $matchedTags[] = ['icon' => 'fa-hands-praying', 'txt' => 'Seiman', 'col' => 'text-purple-600 bg-purple-50'];
-            if ($isSameCity)
-                $matchedTags[] = ['icon' => 'fa-location-dot', 'txt' => 'Sekota', 'col' => 'text-rose-600 bg-rose-50'];
-
-            $diffGaji = $candidate->income_level - $pref->preferred_income_level;
-            if ($diffGaji >= 0)
-                $matchedTags[] = ['icon' => 'fa-money-bill-1-wave', 'txt' => 'Gaji Pas', 'col' => 'text-green-600 bg-green-50'];
-
-            if ($candidate->education_level >= $pref->preferred_education_level)
-                $matchedTags[] = ['icon' => 'fa-user-graduate', 'txt' => 'Pintar', 'col' => 'text-blue-600 bg-blue-50'];
-            $candidate->matched_tags = $matchedTags;
-
-            // Deskripsi (Text)
-            $descriptions = [];
-            $descriptions['agama'] = $isSameReligion ? "✅ Agama cocok ($candidate->religion)." : "❌ Agama beda ($candidate->religion).";
-            $descriptions['kota'] = $isSameCity ? "✅ Domisili sama ($candidate->domisili)." : "❌ Kota beda ($candidate->domisili).";
-
-            if ($diffGaji >= 0) {
-                $lebih = number_format($diffGaji, 0, ',', '.');
-                $descriptions['gaji'] = "✅ Gaji memenuhi target (Lebih Rp $lebih).";
-            } else {
-                $kurang = number_format(abs($diffGaji), 0, ',', '.');
-                $descriptions['gaji'] = "⚠️ Gaji kurang Rp $kurang dari target.";
-            }
-
-            $candEduText = $eduLabels[$candidate->education_level] ?? '-';
-            $descriptions['pendidikan'] = $candidate->education_level >= $pref->preferred_education_level
-                ? "✅ Pendidikan oke ($candEduText)."
-                : "❌ Pendidikan kurang ($candEduText).";
-
-            $candidate->match_reason = $descriptions;
-
-            // --- LINK WHATSAPP ---
-            // Format 08123 -> 628123
-            $hp = $candidate->whatsapp;
-            if (substr($hp, 0, 1) == '0') {
-                $hp = '62' . substr($hp, 1);
-            }
-            // Pesan Sapaan
-            $salam = "Halo $candidate->name, salam kenal! Aku dapat profilmu dari Cupid AI.";
-            $candidate->wa_link = "https://wa.me/$hp?text=" . urlencode($salam);
+            // Link WA
+            $hp = $candidate->whatsapp; if (substr($hp, 0, 1) == '0') $hp = '62' . substr($hp, 1);
+            $candidate->wa_link = "https://wa.me/$hp";
         }
 
-        // --- C. SORTING & FINAL DECISION ---
         $sortedCandidates = $allCandidates->sortByDesc('spk_score');
-        $topCandidate = $sortedCandidates->first();
-        $isPerfectMatch = false;
-
-        // SKENARIO 1: ZONK
-        if ($sortedCandidates->isEmpty()) {
-            $ghost = $this->createGhostCandidate($user); // Panggil fungsi helper
-            $finalCandidates = collect([$ghost]);
-            $status = "Waduh, kriteriamu terlalu tinggi bestie! Ini kami kasih simulasi aja ya.";
-        }
-        // SKENARIO 2: PERFECT MATCH
-        elseif ($topCandidate && (float) $topCandidate->spk_score >= 4.9) {
-            $finalCandidates = collect([$topCandidate]);
-            $status = "Bingo! Kami menemukan 1 Kandidat Perfect Match Sesuai Kriteria Wajib!";
-            $isPerfectMatch = true;
-        }
-        // SKENARIO 3: GRID (Top 6)
-        else {
-            $groupedByTier = $sortedCandidates->groupBy('tier');
-            $finalCandidates = collect();
-            foreach ($groupedByTier as $tier => $candidatesInTier) {
-                $finalCandidates = $finalCandidates->merge($candidatesInTier->take(2));
-            }
-            $finalCandidates = $finalCandidates->take(6);
-            $status = "Belum 100% Perfect, tapi ini rekomendasi terbaik buat kamu ✨";
-        }
 
         return view('match_result', [
             'user' => $user,
-            'status' => $status,
-            'candidates' => $finalCandidates,
-            'isPerfectMatch' => $isPerfectMatch
+            'status' => $sortedCandidates->isEmpty() ? "Belum ada calon nih." : "Rekomendasi Terbaik",
+            'candidates' => $sortedCandidates->take(6),
+            'isPerfectMatch' => ($sortedCandidates->first() && (float)$sortedCandidates->first()->spk_score >= 4.9)
         ]);
     }
 

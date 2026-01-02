@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Cupid AI - Find True Love</title>
+    <title>BAMN AMORE - Find True Love</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -16,11 +16,11 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #f9a8d4; border-radius: 10px; border: 2px solid #fff0f6; }
-        
+
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 2px solid rgba(255, 255, 255, 0.6); }
         .blob-anim { animation: blob-bounce 6s infinite ease-in-out; }
         @keyframes blob-bounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
-        
+
         /* Shimmer Effect */
         .card-wrapper { position: relative; overflow: hidden; }
         .shimmer {
@@ -49,7 +49,7 @@
                 <i class="fa-solid fa-heart text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-none">Cupid AI</h1>
+                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-none">BAMN AMORE</h1>
                 <p class="text-xs text-pink-500 font-bold uppercase tracking-widest">Sistem Pencarian Jodoh</p>
             </div>
         </div>
@@ -72,7 +72,7 @@
         <div class="absolute bottom-10 right-10 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000"></div>
 
         <aside class="w-80 bg-white/70 border-r-2 border-pink-100 overflow-y-auto hidden md:flex flex-col z-10 glass-panel p-5 space-y-6">
-            
+
             <div class="bg-white rounded-[2rem] p-5 shadow-sm border-2 border-white relative group transition-all hover:border-pink-200">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center text-3xl border-4 border-white shadow-md overflow-hidden">
@@ -95,7 +95,7 @@
                     <div class="flex justify-between p-2 bg-gray-50 rounded-lg">
                         <span class="text-gray-400 font-bold">Pendidikan</span>
                         <span class="font-bold">
-                            @php 
+                            @php
                                 $eduMap = [1=>'SMA/SMK', 2=>'Diploma (D3)', 3=>'Sarjana (S1)', 4=>'Magister (S2)', 5=>'Doktor (S3)'];
                                 echo $eduMap[$user->education_level] ?? 'Level '.$user->education_level;
                             @endphp
@@ -108,7 +108,7 @@
                 </div>
                 <a href="/profil" class="mt-3 w-full block text-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold py-2.5 rounded-xl transition"><i class="fa-solid fa-pen mr-1"></i> Edit Profil</a>
             </div>
-            
+
             <div class="bg-white/80 rounded-[2rem] p-5 shadow-sm border-2 border-blue-50 relative">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-gray-800 flex items-center gap-2">
@@ -135,7 +135,7 @@
                         ['label'=>'Min. Gaji', 'val'=>$gajiLabel, 'strict'=>$user->preference->strict_income, 'icon'=>'fa-sack-dollar'],
                         ['label'=>'Pendidikan', 'val'=>$eduLabel, 'strict'=>$user->preference->strict_education, 'icon'=>'fa-user-graduate'],
                     ] as $item)
-                    
+
                     <div class="relative p-3 rounded-xl border-l-4 {{ $item['strict'] ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-300' }} shadow-sm">
                         <div class="absolute top-2 right-2">
                             @if($item['strict'])
@@ -154,7 +154,7 @@
                                 <p class="text-sm font-bold text-gray-700 leading-none truncate w-32">{{ $item['val'] }}</p>
                             </div>
                         </div>
-                        
+
                         <div class="mt-2 pt-1 border-t {{ $item['strict'] ? 'border-red-100' : 'border-blue-100' }}">
                             <p class="text-[9px] font-bold {{ $item['strict'] ? 'text-red-500' : 'text-blue-500' }}">
                                 {{ $item['strict'] ? '⚠️ WAJIB' : '✨ OPSIONAL' }}
@@ -169,10 +169,10 @@
 
         <section class="flex-1 overflow-y-auto z-10 p-6 md:p-10 relative">
             <div class="max-w-6xl mx-auto h-full flex flex-col pb-20">
-                
+
                 <div class="mb-6 text-center md:text-left">
                     <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 flex items-center justify-center md:justify-start gap-2">
-                        Hasil Pencarian 
+                        Hasil Pencarian
                         @if($isPerfectMatch) <span class="bg-rose-500 text-white text-xs px-3 py-1 rounded-full animate-bounce shadow-lg">PERFECT MATCH!</span> @endif
                     </h2>
                     <p class="text-base font-medium text-pink-500 mt-1">{{ $status }}</p>
@@ -199,14 +199,14 @@
                                     </div>
                                 </div>
                                 <h2 class="text-4xl font-black text-gray-800 mb-2">{{ $candidates->first()->name }}</h2>
-                                
+
                                 <p class="text-lg text-gray-500 font-bold mb-6 flex justify-center items-center gap-2">
                                     <span><i class="fa-solid fa-location-dot text-rose-500"></i> {{ $candidates->first()->domisili }}</span>
                                     <span class="text-gray-300">•</span>
                                     <span><i class="fa-solid fa-cake-candles text-rose-400"></i> {{ \Carbon\Carbon::parse($candidates->first()->date_of_birth)->age }} Tahun</span>
                                 </p>
-                                
-                                <button onclick="document.getElementById('modal-{{ $candidates->first()->id }}').classList.remove('hidden')" 
+
+                                <button onclick="document.getElementById('modal-{{ $candidates->first()->id }}').classList.remove('hidden')"
                                     class="bg-gradient-to-r from-rose-500 to-pink-600 text-white text-lg font-extrabold py-4 px-12 rounded-full shadow-xl shadow-rose-300 hover:shadow-rose-400 transition transform hover:-translate-y-1 relative z-30 cursor-pointer">
                                     <i class="fa-solid fa-envelope-open-text mr-2"></i> Buka Rincian Lengkap
                                 </button>
@@ -217,9 +217,9 @@
                 @else
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 candidate-list">
                         @foreach($candidates as $candidate)
-                        
+
                         <div class="card-wrapper bg-white rounded-[2.5rem] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-pink-50 hover:border-pink-300 transition-all hover:-translate-y-2 group overflow-hidden">
-                            
+
                             <div class="shimmer"></div>
                             <div class="float-heart"><i class="fa-solid fa-heart"></i></div>
                             <div class="float-heart"><i class="fa-solid fa-heart"></i></div>
@@ -248,11 +248,11 @@
                                                 <i class="{{ $candidate->match_icon }} mr-1 text-pink-500"></i> {{ str_replace(['🥰','💍','😉','😅'], '', $candidate->match_label) }}
                                             </span>
                                         </div>
-                                        
+
                                         <p class="text-xs text-gray-500 font-bold mt-1 mb-2">
                                             {{ $candidate->domisili }} • {{ \Carbon\Carbon::parse($candidate->date_of_birth)->age }} Thn
                                         </p>
-                                        
+
                                         <div class="flex items-center gap-2">
                                             <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
                                                 <div class="bg-gradient-to-r {{ $candidate->match_color }} h-1.5 rounded-full" style="width: {{ $candidate->score_breakdown['percent'] }}%"></div>
@@ -274,7 +274,7 @@
                                     @endif
                                 </div>
 
-                                <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.remove('hidden')" 
+                                <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.remove('hidden')"
                                     class="w-full mt-1 bg-gray-900 hover:bg-black text-white text-sm font-bold py-3 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 group relative z-30 cursor-pointer">
                                     <i class="fa-regular fa-eye group-hover:scale-110 transition"></i> Lihat Detail Lengkap
                                 </button>
@@ -288,10 +288,10 @@
                 @foreach($candidates as $candidate)
                 <div id="modal-{{ $candidate->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                     <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-md transition-opacity" onclick="this.parentElement.classList.add('hidden')"></div>
-                    
+
                     <div class="flex min-h-full items-center justify-center p-4">
                         <div class="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all border-4 border-white flex flex-col md:flex-row">
-                            
+
                             <button onclick="document.getElementById('modal-{{ $candidate->id }}').classList.add('hidden')" class="absolute top-4 right-4 z-20 bg-black/10 hover:bg-black/30 text-gray-600 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition backdrop-blur">
                                 <i class="fa-solid fa-xmark text-xl"></i>
                             </button>
@@ -305,7 +305,7 @@
                                     @endif
                                 </div>
                                 <h3 class="text-2xl font-black text-gray-800 leading-tight mb-1">{{ $candidate->name }}</h3>
-                                
+
                                 {{-- REVISI UTAMA: UMUR DITAMPILKAN DI SINI DI POPUP --}}
                                 <div class="flex items-center justify-center gap-2 mb-6">
                                     <span class="bg-white px-3 py-1 rounded-full shadow-sm text-sm font-bold text-rose-500 border border-rose-100 flex items-center gap-1">
@@ -358,15 +358,15 @@
                                     <div class="absolute -top-3 left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md transform -rotate-2">
                                         🧾 Resep Perhitungan Cinta
                                     </div>
-                                    
+
                                     <div class="space-y-1 text-xs mt-3 font-mono text-gray-600">
                                         <div class="flex justify-between"><span>Bobot Agama</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Agama'], 1) }}</span></div>
                                         <div class="flex justify-between"><span>Bobot Kota</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Kota'], 1) }}</span></div>
                                         <div class="flex justify-between"><span>Bobot Gaji</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Gaji'], 1) }}</span></div>
                                         <div class="flex justify-between"><span>Bobot Pend</span> <span class="font-bold">{{ number_format($candidate->math_details['scores']['Pendidikan'], 1) }}</span></div>
-                                        
+
                                         <div class="border-t border-gray-300 border-dashed my-2"></div>
-                                        
+
                                         @if($candidate->math_details['bonus_total'] > 0)
                                             <div class="mt-2 p-2 bg-green-50 rounded border border-green-100">
                                                 <div class="flex justify-between text-green-700 font-bold mb-1">
@@ -380,7 +380,7 @@
                                             <span class="text-gray-800 uppercase text-[10px]">Total Skor SPK</span>
                                             <span class="text-rose-500 bg-rose-50 px-2 rounded">{{ $candidate->spk_score }} / 5.0</span>
                                         </div>
-                                        
+
                                         <div class="mt-1 text-[9px] text-gray-400 text-right">
                                             ( {{ $candidate->spk_score }} ÷ 5.0 ) x 100 = <span class="font-bold text-rose-500">{{ number_format($candidate->math_details['final_percent'], 0) }}% Match</span>
                                         </div>
@@ -404,12 +404,12 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 {{ $candidate->instagram ? 'sm:grid-cols-2' : '' }} gap-3 sticky bottom-0 bg-white pt-2">
-                                    <a href="{{ $candidate->wa_link }}" target="_blank" onclick="recordInteraction({{ $candidate->id }})" 
+                                    <a href="{{ $candidate->wa_link }}" target="_blank" onclick="recordInteraction({{ $candidate->id }})"
                                        class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-100 transition flex justify-center items-center gap-2">
                                         <i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp
                                     </a>
                                     @if($candidate->instagram)
-                                        <a href="https://instagram.com/{{ str_replace('@', '', $candidate->instagram) }}" target="_blank" 
+                                        <a href="https://instagram.com/{{ str_replace('@', '', $candidate->instagram) }}" target="_blank"
                                            class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-100 transition flex justify-center items-center gap-2">
                                             <i class="fa-brands fa-instagram text-xl"></i> Instagram
                                         </a>

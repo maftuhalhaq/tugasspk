@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Daftar - Cupid AI</title>
+    <title>Daftar - BAMN AMORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body { font-family: 'Nunito', sans-serif; }
-        
+
         /* 1. ANIMATED MESH GRADIENT BACKGROUND */
         .mesh-bg {
             background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1, #fbc2eb);
@@ -39,12 +39,12 @@
 <body class="min-h-screen mesh-bg flex items-center justify-center p-4 md:p-6">
 
     <div class="w-full max-w-5xl bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col md:flex-row relative border-4 border-white/50">
-        
+
         <div class="w-full md:w-1/2 p-8 md:p-14 flex flex-col justify-center relative z-10">
-            
+
             <div class="mb-8">
                 <div class="flex items-center gap-2 mb-2">
-                    <span class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Cupid AI</span>
+                    <span class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">BAMN AMORE</span>
                 </div>
                 <h2 class="text-4xl font-black text-gray-800 leading-tight">
                     Mulai Kisah <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-500">Cintamu Disini.</span>
@@ -54,7 +54,7 @@
 
             <form action="/register" method="POST" class="space-y-5">
                 @csrf
-                
+
                 <div class="input-group">
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-1 transition-colors">Nama Lengkap</label>
                     <div class="relative">
@@ -95,9 +95,9 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="group w-full bg-gray-900 hover:bg-black text-white font-extrabold py-4 rounded-2xl shadow-xl shadow-gray-300/50 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden">
-                    <span class="relative z-10">Gabung Sekarang</span> 
+                    <span class="relative z-10">Gabung Sekarang</span>
                     <i class="fa-solid fa-arrow-right-long relative z-10 group-hover:translate-x-1 transition-transform"></i>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>
                 </button>
@@ -110,9 +110,9 @@
 
         <div class="hidden md:flex w-1/2 relative overflow-hidden items-center justify-center p-10">
             <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-purple-200 to-rose-200 rounded-full blur-3xl opacity-50 animate-pulse"></div>
-            
+
             <div class="relative w-full max-w-sm">
-                
+
                 <div class="absolute top-0 right-0 w-64 h-80 bg-white rounded-[2rem] shadow-lg transform rotate-6 opacity-60 scale-90 float-card-delay border-2 border-white">
                     <div class="h-32 bg-gray-100 rounded-t-[2rem]"></div>
                 </div>
@@ -120,7 +120,7 @@
                 <div class="relative w-72 bg-white/60 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border-4 border-white p-5 float-card transform -rotate-3">
                     <div class="h-48 rounded-[2rem] bg-gradient-to-br from-rose-400 to-orange-300 relative overflow-hidden flex items-center justify-center mb-4 shadow-inner">
                         <i class="fa-solid fa-user-astronaut text-6xl text-white/80"></i>
-                        
+
                         <div class="absolute bottom-3 right-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-black text-rose-500 shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-heart"></i> 98%
                         </div>
